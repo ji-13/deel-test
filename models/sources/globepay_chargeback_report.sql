@@ -3,4 +3,4 @@ select
     , status::BOOLEAN AS is_accepted_chargeback
     , source::VARCHAR AS chargeback_source
     , chargeback::BOOLEAN AS is_chargeback
-    from DEEL_TEST.PUBLIC.GLOBEPAY_CHARGEBACK_REPORT
+from {{ ref("stg_public__globepay_chargeback_report") }}

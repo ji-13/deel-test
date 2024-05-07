@@ -11,6 +11,6 @@ select
     country::TEXT(2) as country_code,
     currency::TEXT(3) as currency_code,
     to_variant(parse_json(rates)) as rates_variant
-from deel_test.public.globepay_acceptance_report
+from {{ ref('stg_public__globepay_acceptance_report') }}
 qualify row_number() over (partition by external_ref order by date_time::timestamp desc) = 1
 
