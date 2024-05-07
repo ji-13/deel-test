@@ -17,8 +17,8 @@ Column definitions:
 
 | Column Name    | Definition |
 | -------- | ------- |
-| EXTERNAL_REF  | Primary key of the transaction    |
-| REFERENCE | $80     |
+| EXTERNAL_REF  | Primary key of the transaction, payment parameters (like amount, country, and currency) together with the input details collected from the customer    |
+| REFERENCE | Identifcation field     |
 | COUNTRY_CODE    | 2-Character code to identify the country of the transaction    |
 | TRANSACTION_DATE    | Truncated Date of Transaction   |
 | TRANSACTION_DATETIME    | Date and Timestamp of Transaction    |
