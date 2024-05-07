@@ -1,4 +1,4 @@
-#Read.me
+# Read.me
 See below for the simplified flow of the two data sources provided - Chargebacks and Acceptances. The sources are accessed through a connection to Snowflake, and freshness of the date_time transaction field is checked. The sources are then renamed and cleaned, with preventative casting and qualifying to maintain data integrity. The schema.yml file also specifies out-of-the-box tests to check the uniqueness/non-null quality of the primary keys and that the relation between the two sources exists. 
 The two building blocks are then joined together to make a final denormalised mart for analyst use which brings together the transaction and chargeback data using the external_reference. 
 
@@ -11,7 +11,7 @@ flowchart TD
     D -->|joining, transforming| F[Denormalised mart]
     E -->|joining, transforming| F[Denormalised mart]
 ```
-#Table Definitions
+# Table Definitions
 `globepay_denormalised` is the final mart table which is incremental, which means that new entries from the source data are deleted and inserted based on the date specification. 
 Column definitions:
 
@@ -38,7 +38,7 @@ Column definitions:
 | TRANSACTION_AMOUNT_EUR    | Transaction amount in EUR      |
 | LAST_UPDATED    | CURRENT_TIMESTAMP value of when the entry was last updated    |
 
-#Example Analyses
+# Example Analyses
 
 1. What is the acceptance rate over time?
 ```
