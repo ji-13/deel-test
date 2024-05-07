@@ -1,4 +1,4 @@
-Read.me
+#Read.me
 See below for the simplified flow of the two data sources provided - Chargebacks and Acceptances. The sources are accessed through a connection to Snowflake, and freshness of the date_time transaction field is checked. The sources are then renamed and cleaned, with preventative casting and qualifying to maintain data integrity. The schema.yml file also specifies out-of-the-box tests to check the uniqueness/non-null quality of the primary keys and that the relation between the two sources exists. 
 The two building blocks are then joined together to make a final denormalised mart for analyst use which brings together the transaction and chargeback data using the external_reference. 
 
@@ -11,7 +11,7 @@ flowchart TD
     D -->|joining, transforming| F[Denormalised mart]
     E -->|joining, transforming| F[Denormalised mart]
 ```
-
+#Table Definitions
 `globepay_denormalised` is the final mart table which is incremental, which means that new entries from the source data are deleted and inserted based on the date specification. 
 Column definitions:
 
@@ -38,3 +38,52 @@ Column definitions:
 | TRANSACTION_AMOUNT_EUR    | Transaction amount in EUR      |
 | LAST_UPDATED    | CURRENT_TIMESTAMP value of when the entry was last updated    |
 
+#Example Analyses
+
+1. What is the acceptance rate over time?
+```
+WITH acceptance_rates AS (
+SELECT 
+    TRANSACTION_DATE
+    , SUM(IFF(is_accepted, 1, 0)) AS acceptance
+    , SUM(1) AS totals
+    , SUM(acceptance) OVER (ORDER BY
+TRANSACTION_DATE ASC ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS last_7_days_acceptance
+    , SUM(totals) OVER (ORDER BY
+TRANSACTION_DATE ASC ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS last_7_days_total
+    , SUM(acceptance) OVER (ORDER BY
+TRANSACTION_DATE ASC ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) AS last_30_days_acceptance
+    , SUM(totals) OVER (ORDER BY
+TRANSACTION_DATE ASC ROWS BETWEEN 29 PRECEDING AND CURRENT ROW) AS last_30_days_total
+FROM DEEL_TEST.DBT_JI13.GLOBEPAY_DENORMALISED
+group by 1
+order by 1)
+
+SELECT 
+TRANSACTION_DATE
+, last_7_days_acceptance/last_7_days_total AS rolling_7_day_acceptance_rate
+, last_30_days_acceptance/last_30_days_total AS rolling_30_day_acceptance_rate
+FROM acceptance_rates;
+```
+   
+2. List the countries where the amount of declined transactions went over $25M
+
+```
+SELECT 
+COUNTRY_CODE 
+, SUM(transaction_amount_usd) AS total_transaction_amount_usd
+FROM DEEL_TEST.DBT_JI13.GLOBEPAY_DENORMALISED
+WHERE NOT is_accepted
+GROUP BY  1
+HAVING total_transaction_amount_usd > 25000000
+ORDER BY 2 DESC;
+```
+   
+3. Which transactions are missing chargeback data?
+   
+ ```
+SELECT 
+external_ref
+FROM DEEL_TEST.DBT_JI13.GLOBEPAY_DENORMALISED
+WHERE is_missing_charegback_data;
+```
