@@ -1,0 +1,34 @@
+version: 2
+sources:
+  - name: public
+    database: deel_test
+    schema: public
+    tables:
+      - name: globepay_acceptance_report
+        freshness:
+          warn_after: {count: 12, period: hour}
+          error_after: {count: 48, period: hour}
+        loaded_at_field: date_time
+      - name: globepay_chargeback_report
+
+models:
+  - name: GLOBEPLAY_ACCEPTANCE_REPORT
+    columns:
+      - name: external_ref
+        tests:
+          - unique
+          - not_null
+      - name: currency_code
+        tests:
+          - accepted_values:
+              values: ["USD", "GBP", "MXN", "EUR", "CAD"]
+
+  - name: GLOBEPLAY_CHARGEBACK_REPORT
+    columns:
+      - name: chargeback_external_ref
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('GLOBEPLAY_ACCEPTANCE_REPORT')
+              field: external_ref
