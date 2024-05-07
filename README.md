@@ -70,7 +70,7 @@ FROM acceptance_rates;
 
 ```
 SELECT 
-COUNTRY_CODE 
+COUNTRY_NAME 
 , SUM(transaction_amount_usd) AS total_transaction_amount_usd
 FROM DEEL_TEST.DBT_JI13.GLOBEPAY_DENORMALISED
 WHERE NOT is_accepted
