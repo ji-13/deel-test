@@ -11,6 +11,7 @@ select
     "GAR".external_ref
     , "GAR".reference
     , "GAR".country_code
+    , {{ country_name('country_code') }} AS country_name
 
     , "GAR".transaction_date
     , "GAR".transaction_datetime
